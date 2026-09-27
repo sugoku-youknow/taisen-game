@@ -114,11 +114,23 @@ let dragState = null; // { ballId, originX, originY, pointerId }
 
 function resizeCanvasForConfig(config) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
   canvas.width = config.bounds.width * dpr;
   canvas.height = config.bounds.height * dpr;
+
   canvas.style.width = '100%';
-  canvas.style.maxWidth = `${config.bounds.width}px`;
-  ctx.setTransform(dpr, 0, 0, dpr, config.bounds.width / 2 * dpr, config.bounds.height / 2 * dpr);
+  canvas.style.height = '100%';
+  canvas.style.maxWidth = 'none';
+  canvas.style.maxHeight = '100%';
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    config.bounds.width / 2 * dpr,
+    config.bounds.height / 2 * dpr
+  );
 }
 
 function drawWallSegment(seg) {
