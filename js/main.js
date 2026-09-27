@@ -118,16 +118,17 @@ function resizeCanvasForConfig(config) {
   canvas.width = config.bounds.width * dpr;
   canvas.height = config.bounds.height * dpr;
 
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
-  canvas.style.maxWidth = 'none';
-  canvas.style.maxHeight = '100%';
+  // 縦横比を維持したまま、画面内に最大サイズで表示
+  const scale = Math.min(
+    window.innerWidth / config.bounds.width,
+    window.innerHeight / config.bounds.height
+  );
+
+  canvas.style.width = `${config.bounds.width * scale}px`;
+  canvas.style.height = `${config.bounds.height * scale}px`;
 
   ctx.setTransform(
-    dpr,
-    0,
-    0,
-    dpr,
+    dpr, 0, 0, dpr,
     config.bounds.width / 2 * dpr,
     config.bounds.height / 2 * dpr
   );
