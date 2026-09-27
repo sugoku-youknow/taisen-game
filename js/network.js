@@ -7,8 +7,11 @@
 // 他の参加者(ゲスト)は自分の入力(input)をホストへ送るだけにする。
 // これにより全員が同じ盤面を見られる(いわゆるホスト権威型のネット同期)。
 
-// nostr戦略: BitTorrentトラッカーより到達性が高く、追加設定が不要なため採用。
-const TRYSTERO_CDN_URL = 'https://cdn.skypack.dev/trystero/nostr';
+// CDN経由でTrysteroを読み込む。esm.run(jsdelivr)は現在も保守されている配信元で、
+// Trystero公式READMEもこの読み込み方法を案内している。
+// (以前使っていたSkypackはすでにメンテナンス終了しており、読み込みに失敗していた)
+// trystero本体は現在デフォルトでNostr戦略(追加設定不要で到達性が高い分散ネットワーク)を使う。
+const TRYSTERO_CDN_URL = 'https://esm.run/trystero';
 
 // 同じアプリを使う全ルームに共通の名前空間。他のTrysteroアプリと部屋名が衝突しないための識別子。
 const APP_ID = 'taisen-game-rubberband-v1';
@@ -50,14 +53,16 @@ export class Network {
     this.roomCode = roomCode;
     this.room = joinRoomFn({ appId: APP_ID }, `taisen-${roomCode}`);
 
-    this.room.onPeerJoin((peerId) => {
+    // 現在のTrysteroはイベントハンドラを「プロパティへの代入」で登録する形式
+    // (room.onPeerJoin(fn) ではなく room.onPeerJoin = fn)。
+    this.room.onPeerJoin = (peerId) => {
       this.peers.add(peerId);
       this.onPeerJoin(peerId);
-    });
-    this.room.onPeerLeave((peerId) => {
+    };
+    this.room.onPeerLeave = (peerId) => {
       this.peers.delete(peerId);
       this.onPeerLeave(peerId);
-    });
+    };
 
     // 使うアクション種別をまとめて登録しておく
     const defineAction = (name) => {
