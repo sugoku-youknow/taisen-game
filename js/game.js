@@ -45,7 +45,7 @@ export class Game {
     net.on('start', (payload) => this._handleStart(payload));
     net.on('state', (payload) => this._handleState(payload));
     net.on('end', (payload) => this._handleEnd(payload));
-    net.on('input', (payload, peerId) => this._handleInput(payload, peerId));
+    net.on('input', (payload, { peerId }) => this._handleInput(payload, peerId));
   }
 
   // ---- ホスト操作: ルーム内の人数からゲームを開始する ----------------
