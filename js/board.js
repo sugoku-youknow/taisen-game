@@ -4,14 +4,14 @@
 
 export const ZONE_COLORS = ['#e2793d', '#3f7fd1', '#4caf7d', '#a869d6'];
 
-const BALL_RADIUS = 11;
+const BALL_RADIUS = 18;
 const WALL_THICKNESS = 8;
 
 // ---- 2人用: 縦長の長方形を上下2分割 ----------------------------------
 function buildRectBoard() {
   const width = 260;
   const height = 460;
-  const gapHalfWidth = 34; // 中央の通行可能な隙間の半幅
+  const gapHalfWidth = 72; // 中央の通行可能な隙間の半幅
 
   const outerWalls = [
     // 上辺
