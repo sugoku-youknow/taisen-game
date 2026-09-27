@@ -110,19 +110,46 @@ function buildPolygonBoard(playerCount) {
   // 放射状の仕切り(プレイヤー数と同じ本数)、中心はgapRadiusまで空ける
   const wedgeAngle = (Math.PI * 2) / playerCount;
   const dividerWalls = [];
-  for (let i = 0; i < playerCount; i++) {
-    const angle = wedgeAngle * i - Math.PI / 2 - wedgeAngle / 2;
-    const len = outerRadius - gapRadius;
-    const midR = gapRadius + len / 2;
-    dividerWalls.push({
-      x: Math.cos(angle) * midR,
-      y: Math.sin(angle) * midR,
-      w: len,
-      h: WALL_THICKNESS,
-      angle: angle,
-    });
-  }
 
+  // 仕切りの穴の位置
+  // 中心から holeStart ～ holeEnd の間を空ける
+  const holeStart = 70;
+  const holeEnd = 100;
+
+  for (let i = 0; i < playerCount; i++) {
+    const angle =
+      wedgeAngle * i - Math.PI / 2 - wedgeAngle / 2;
+
+    // 中心側の壁
+    const innerLen = holeStart;
+
+    if (innerLen > 0) {
+      const innerMidR = innerLen / 2;
+
+      dividerWalls.push({
+        x: Math.cos(angle) * innerMidR,
+        y: Math.sin(angle) * innerMidR,
+        w: innerLen,
+        h: WALL_THICKNESS,
+        angle: angle,
+      });
+    }
+
+    // 外側の壁
+    const outerLen = outerRadius - holeEnd;
+
+    if (outerLen > 0) {
+      const outerMidR = (holeEnd + outerRadius) / 2;
+
+      dividerWalls.push({
+        x: Math.cos(angle) * outerMidR,
+        y: Math.sin(angle) * outerMidR,
+        w: outerLen,
+        h: WALL_THICKNESS,
+        angle: angle,
+      });
+    }
+  }
   const zoneOfPoint = (x, y) => {
     let a = Math.atan2(y, x) + Math.PI / 2 + wedgeAngle / 2;
     a = ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
