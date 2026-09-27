@@ -112,6 +112,7 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 let dragState = null; // { ballId, originX, originY, pointerId }
 
+// ▼▼▼ 変更箇所 1: 自分の陣地が画面下に来るように盤面を回転 ▼▼▼
 function resizeCanvasForConfig(config) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -127,12 +128,35 @@ function resizeCanvasForConfig(config) {
   canvas.style.width = `${config.bounds.width * scale}px`;
   canvas.style.height = `${config.bounds.height * scale}px`;
 
+  // 自分の陣地が画面下に来るように盤面を回転
+  let rotation = 0;
+
+  if (config.playerCount === 2) {
+    // 2人対戦
+    rotation = game.myZone === 0 ? Math.PI : 0;
+  } else {
+    // 3人・4人対戦
+    const wedgeAngle = (Math.PI * 2) / config.playerCount;
+    const myZoneCenterAngle =
+      wedgeAngle * game.myZone - Math.PI / 2;
+
+    // 自分の陣地の中心を「下方向」に向ける
+    rotation = Math.PI / 2 - myZoneCenterAngle;
+  }
+
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+
   ctx.setTransform(
-    dpr, 0, 0, dpr,
+    dpr * cos,
+    dpr * sin,
+    -dpr * sin,
+    dpr * cos,
     config.bounds.width / 2 * dpr,
     config.bounds.height / 2 * dpr
   );
 }
+// ▲▲▲ 変更箇所 1 ここまで ▲▲▲
 
 function drawWallSegment(seg) {
   ctx.save();
@@ -252,14 +276,44 @@ function updateZoneCounts(counts) {
 game.onCounts = updateZoneCounts;
 
 // ---- 入力: 自陣の玉をドラッグして引っ張り、離すと発射 ------------------
+
+// ▼▼▼ 変更箇所 2: 画面のタッチ位置を逆回転してゲーム内座標に変換 ▼▼▼
 function canvasPointToBoard(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const scale = game.config.bounds.width / rect.width;
+
+  // 画面上の座標
+  const screenX =
+    (clientX - rect.left - rect.width / 2) * scale;
+
+  const screenY =
+    (clientY - rect.top - rect.height / 2) * scale;
+
+  // 盤面の回転角を求める
+  let rotation = 0;
+
+  if (game.config.playerCount === 2) {
+    rotation = game.myZone === 0 ? Math.PI : 0;
+  } else {
+    const wedgeAngle =
+      (Math.PI * 2) / game.config.playerCount;
+
+    const myZoneCenterAngle =
+      wedgeAngle * game.myZone - Math.PI / 2;
+
+    rotation = Math.PI / 2 - myZoneCenterAngle;
+  }
+
+  // 回転を逆に戻してゲーム内部の座標に変換
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+
   return {
-    x: (clientX - rect.left - rect.width / 2) * scale,
-    y: (clientY - rect.top - rect.height / 2) * scale,
+    x: cos * screenX + sin * screenY,
+    y: -sin * screenX + cos * screenY,
   };
 }
+// ▲▲▲ 変更箇所 2 ここまで ▲▲▲
 
 canvas.addEventListener('pointerdown', (e) => {
   if (game.phase !== 'playing') return;
