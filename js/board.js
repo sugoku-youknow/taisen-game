@@ -11,7 +11,7 @@ const WALL_THICKNESS = 8;
 function buildRectBoard() {
   const width = 260;
   const height = 460;
-  const gapHalfWidth = 36; // 中央の通行可能な隙間の半幅
+  const gapHalfWidth = 27; // 中央の通行可能な隙間の半幅
 
   const outerWalls = [
     // 上辺
