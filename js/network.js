@@ -42,6 +42,10 @@ export class Network {
     this.onPeerJoin = () => {};
     this.onPeerLeave = () => {};
     this.actions = {};
+    // Game側は「部屋を作る前」に on() を呼んで受信の準備をするため、
+    // 部屋(room)がまだ無い時点の登録はここに一旦ためておき、
+    // 実際に部屋ができたタイミングで改めて紐づける。
+    this._pendingListeners = {};
   }
 
   get selfId() {
@@ -68,6 +72,10 @@ export class Network {
     const defineAction = (name) => {
       const [send, get] = this.room.makeAction(name);
       this.actions[name] = { send, get };
+      // on()が部屋作成より先に呼ばれていた場合は、ここで改めて紐づける
+      if (this._pendingListeners[name]) {
+        get(this._pendingListeners[name]);
+      }
     };
     ['start', 'input', 'state', 'end', 'ping'].forEach(defineAction);
   }
@@ -91,9 +99,10 @@ export class Network {
   }
 
   on(actionName, callback) {
+    // 部屋を作る/参加する前に呼ばれることがあるので、まず控えておく。
+    this._pendingListeners[actionName] = callback;
     const action = this.actions[actionName];
-    if (!action) throw new Error(`unknown action: ${actionName}`);
-    action.get(callback);
+    if (action) action.get(callback);
   }
 
   leave() {
