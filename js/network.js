@@ -70,11 +70,12 @@ export class Network {
 
     // 使うアクション種別をまとめて登録しておく
     const defineAction = (name) => {
-      const [send, get] = this.room.makeAction(name);
-      this.actions[name] = { send, get };
+      const action = this.room.makeAction(name);
+      this.actions[name] = action;
       // on()が部屋作成より先に呼ばれていた場合は、ここで改めて紐づける
       if (this._pendingListeners[name]) {
-        get(this._pendingListeners[name]);
+        action.get(this._pendingListeners[name]);
+        delete this._pendingListeners[name];
       }
     };
     ['start', 'input', 'state', 'end', 'ping'].forEach(defineAction);
