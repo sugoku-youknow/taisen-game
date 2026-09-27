@@ -195,12 +195,47 @@ function drawDragLine() {
   dragState.originX = ball.x;
   dragState.originY = ball.y;
 
+  // 玉から指までのベクトル
+  const dx = dragState.pointerX - ball.x;
+  const dy = dragState.pointerY - ball.y;
+
+  const pullLength = Math.hypot(dx, dy);
+  if (pullLength < 1) return;
+
+  // 玉が進む方向（指とは反対方向）
+  const dirX = -dx / pullLength;
+  const dirY = -dy / pullLength;
+
+  // 玉から進行方向へ、引っ張った距離と同じ長さ伸ばす
+  const endX = ball.x + dirX * pullLength;
+  const endY = ball.y + dirY * pullLength;
+
+  // 指 → 玉 → 進行方向まで黄色い線を描く
   ctx.beginPath();
-  ctx.moveTo(ball.x, ball.y);
-  ctx.lineTo(dragState.pointerX, dragState.pointerY);
+  ctx.moveTo(dragState.pointerX, dragState.pointerY);
+  ctx.lineTo(endX, endY);
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'rgba(255,179,71,0.9)';
   ctx.stroke();
+
+  // 進行方向側だけ矢印にする
+  const arrowSize = 12;
+  const angle = Math.atan2(dirY, dirX);
+
+  ctx.beginPath();
+  ctx.moveTo(endX, endY);
+  ctx.lineTo(
+    endX - arrowSize * Math.cos(angle - Math.PI / 6),
+    endY - arrowSize * Math.sin(angle - Math.PI / 6)
+  );
+  ctx.lineTo(
+    endX - arrowSize * Math.cos(angle + Math.PI / 6),
+    endY - arrowSize * Math.sin(angle + Math.PI / 6)
+  );
+  ctx.closePath();
+
+  ctx.fillStyle = 'rgba(255,179,71,0.9)';
+  ctx.fill();
 }
 
 function updateZoneCounts(counts) {
