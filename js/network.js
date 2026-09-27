@@ -27,10 +27,7 @@ async function ensureTrystero() {
 }
 
 export function generateRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 紛らわしい文字(0/O, 1/I)を除外
-  let code = '';
-  for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
+  return String(Math.floor(Math.random() * 10));
 }
 
 export class Network {
