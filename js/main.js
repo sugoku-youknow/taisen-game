@@ -34,7 +34,7 @@ document.getElementById('btn-create-room').addEventListener('click', async () =>
 document.getElementById('btn-join-room').addEventListener('click', async () => {
   lobbyError.textContent = '';
   const code = document.getElementById('input-room-code').value.trim();
-  if (code.length < 4) {
+  if (code.length !== 1 || !/^[0-9]$/.test(code)) {
     lobbyError.textContent = '部屋コードを入力してください。';
     return;
   }
