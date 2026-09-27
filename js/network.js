@@ -74,7 +74,7 @@ export class Network {
       this.actions[name] = action;
       // on()が部屋作成より先に呼ばれていた場合は、ここで改めて紐づける
       if (this._pendingListeners[name]) {
-        action.get(this._pendingListeners[name]);
+        action.onMessage = this._pendingListeners[name];
         delete this._pendingListeners[name];
       }
     };
@@ -96,14 +96,24 @@ export class Network {
   send(actionName, data, targetPeerId) {
     const action = this.actions[actionName];
     if (!action) throw new Error(`unknown action: ${actionName}`);
-    action.send(data, targetPeerId);
+
+    if (targetPeerId) {
+      action.send(data, { target: targetPeerId });
+    } else {
+      action.send(data);
+    }
   }
 
   on(actionName, callback) {
-    // 部屋を作る/参加する前に呼ばれることがあるので、まず控えておく。
-    this._pendingListeners[actionName] = callback;
     const action = this.actions[actionName];
-    if (action) action.get(callback);
+
+    if (action) {
+      action.onMessage = callback;
+      return;
+    }
+
+    // 部屋を作る前なら、あとで登録する
+    this._pendingListeners[actionName] = callback;
   }
 
   leave() {
