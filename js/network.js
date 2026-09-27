@@ -55,7 +55,15 @@ export class Network {
   async _join(roomCode) {
     await ensureTrystero();
     this.roomCode = roomCode;
-    this.room = joinRoomFn({ appId: APP_ID }, `taisen-${roomCode}`);
+    this.room = joinRoomFn(
+      {
+        appId: APP_ID,
+        relayConfig: {
+          redundancy: 5
+        }
+      },
+      `taisen-${roomCode}`
+    );
 
     // 現在のTrysteroはイベントハンドラを「プロパティへの代入」で登録する形式
     // (room.onPeerJoin(fn) ではなく room.onPeerJoin = fn)。
