@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #232733;
+  --panel: #f4ecd8;
+  --panel-ink: #2b2620;
+  --accent: #ffb347;
+  --accent-ink: #3a2a10;
+  --muted: #9aa1b4;
+  --danger: #e2557a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: #eef0f6;
+  font-family: 'Zen Kaku Gothic New', system-ui, sans-serif;
+}
+
+h1, h2 {
+  font-family: 'Baloo 2', 'Zen Kaku Gothic New', system-ui, sans-serif;
+  margin: 0 0 0.3em;
+}
+
+.app-header {
+  text-align: center;
+  padding: 28px 16px 8px;
+}
+.app-header h1 { font-size: 1.7rem; color: var(--accent); }
+.app-sub { color: var(--muted); margin: 0; font-size: 0.95rem; }
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.screen { display: flex; flex-direction: column; gap: 16px; }
+.screen.hidden { display: none; }
+
+.card {
+  background: var(--panel);
+  color: var(--panel-ink);
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.25);
+}
+.card h2 { font-size: 1.15rem; }
+.hint { font-size: 0.88rem; color: #5a5346; line-height: 1.5; margin: 4px 0 12px; }
+
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  background: #dcd2b8;
+  color: var(--panel-ink);
+  transition: transform 0.08s ease;
+}
+.btn:active { transform: translateY(2px); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 0 #c9852c; }
+.btn-primary:active { box-shadow: 0 1px 0 #c9852c; }
+.btn-ghost { background: transparent; color: var(--muted); box-shadow: none; text-decoration: underline; }
+.btn-small { padding: 6px 12px; font-size: 0.85rem; }
+
+.join-row { display: flex; gap: 8px; }
+.join-row input {
+  flex: 1;
+  border-radius: 10px;
+  border: 2px solid #cfc4a4;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.error-text { color: var(--danger); font-weight: 700; min-height: 1.2em; }
+
+.room-code {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: 0.18em;
+  text-align: center;
+  padding: 8px 0;
+  color: #b5551f;
+}
+
+.player-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.player-list li {
+  background: #ece0c4;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  display: flex;
+  justify-content: space-between;
+}
+.player-list li.me { font-weight: 700; }
+
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.zone-counts { display: flex; gap: 8px; flex-wrap: wrap; }
+.zone-pill {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+.zone-pill.mine { outline: 2px solid #fff; }
+
+.board-wrap {
+  display: flex;
+  justify-content: center;
+  background: #171a22;
+  border-radius: 18px;
+  padding: 12px;
+}
+#game-canvas { max-width: 100%; height: auto; touch-action: none; border-radius: 10px; }
+
+.center-card { text-align: center; }
+.ended-message { font-size: 1.1rem; margin-bottom: 16px; }
+
+@media (max-width: 480px) {
+  .app-header h1 { font-size: 1.4rem; }
+  .room-code { font-size: 1.9rem; }
+}
