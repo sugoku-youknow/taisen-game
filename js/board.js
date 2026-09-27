@@ -114,7 +114,7 @@ function buildPolygonBoard(playerCount) {
   // 仕切りの穴の位置
   // 中心から holeStart ～ holeEnd の間を空ける
   const holeStart = 70;
-  const holeEnd = 100;
+  const holeEnd = 124;
 
   for (let i = 0; i < playerCount; i++) {
     const angle =
