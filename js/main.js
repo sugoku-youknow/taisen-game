@@ -175,8 +175,15 @@ function drawBalls() {
 
 function drawDragLine() {
   if (!dragState) return;
+
+  const ball = game.getRenderBalls().find((b) => b.id === dragState.ballId);
+  if (!ball) return;
+
+  dragState.originX = ball.x;
+  dragState.originY = ball.y;
+
   ctx.beginPath();
-  ctx.moveTo(dragState.originX, dragState.originY);
+  ctx.moveTo(ball.x, ball.y);
   ctx.lineTo(dragState.pointerX, dragState.pointerY);
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'rgba(255,179,71,0.9)';
