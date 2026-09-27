@@ -180,9 +180,10 @@ body:has(#screen-game:not(.hidden)) .board-wrap {
 }
 
 body:has(#screen-game:not(.hidden)) #game-canvas {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: 100%;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
   border-radius: 0;
 }
