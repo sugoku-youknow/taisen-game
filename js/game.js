@@ -17,7 +17,7 @@ const STEP_MS = 1000 / 60;
 export class Game {
   constructor(network) {
     this.network = network;
-    this.phase = 'lobby'; // lobby | waiting | playing | ended
+    this.phase = 'lobby'; // lobby | waiting | countdown | playing | ended
     this.config = null;
     this.zoneAssignment = null; // Map peerId -> zoneIndex
     this.myZone = null;
@@ -76,7 +76,7 @@ export class Game {
     this.ballDefs = ballDefs;
     this.zoneAssignment = new Map(zoneAssignment.map((peerId, zone) => [peerId, zone]));
     this.myZone = this.zoneAssignment.get(this.network.selfId);
-    this.phase = 'playing';
+    this.phase = 'countdown';
     this.winnerZone = null;
     this.renderPositions.clear();
     this.targetPositions.clear();
@@ -85,15 +85,23 @@ export class Game {
       this.targetPositions.set(def.id, { x: def.x, y: def.y });
     });
 
-    if (this.network.isHost) {
-      this.engine = createWorld();
-      buildBoardBodies(this.engine, this.config);
-      const bodies = spawnBalls(this.engine, ballDefs);
-      this.bodiesById = new Map(bodies.map((b) => [b.gameId, b]));
-      this._startHostLoop();
-    }
+    this.onPhaseChange('countdown');
 
-    this.onPhaseChange('playing');
+    setTimeout(() => {
+      if (this.phase !== 'countdown') return;
+
+      this.phase = 'playing';
+
+      if (this.network.isHost) {
+        this.engine = createWorld();
+        buildBoardBodies(this.engine, this.config);
+        const bodies = spawnBalls(this.engine, ballDefs);
+        this.bodiesById = new Map(bodies.map((b) => [b.gameId, b]));
+        this._startHostLoop();
+      }
+
+      this.onPhaseChange('playing');
+    }, 3000);
   }
 
   _startHostLoop() {
