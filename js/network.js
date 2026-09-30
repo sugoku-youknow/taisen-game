@@ -35,9 +35,12 @@ export class Network {
     this.room = null;
     this.isHost = false;
     this.roomCode = null;
+    this.playerName = '';
+    this.playerNames = new Map();
     this.peers = new Set(); // 接続中のゲストpeerId(ホスト視点)
     this.onPeerJoin = () => {};
     this.onPeerLeave = () => {};
+    this.onPlayerName = () => {};
     this.actions = {};
     // Game側は「部屋を作る前」に on() を呼んで受信の準備をするため、
     // 部屋(room)がまだ無い時点の登録はここに一旦ためておき、
@@ -66,6 +69,7 @@ export class Network {
     // (room.onPeerJoin(fn) ではなく room.onPeerJoin = fn)。
     this.room.onPeerJoin = (peerId) => {
       this.peers.add(peerId);
+      this.send('name', { name: this.playerName }, peerId);
       this.onPeerJoin(peerId);
     };
     this.room.onPeerLeave = (peerId) => {
@@ -83,19 +87,33 @@ export class Network {
         delete this._pendingListeners[name];
       }
     };
-    ['start', 'input', 'state', 'end', 'ping'].forEach(defineAction);
+    ['start', 'input', 'state', 'end', 'ping', 'name'].forEach(defineAction);
+
+    this.actions.name.onMessage = ({ name }, { peerId }) => {
+      this.playerNames.set(peerId, name);
+      this.onPlayerName(peerId, name);
+    };
   }
 
-  async createRoom() {
+  async createRoom(playerName) {
     this.isHost = true;
+    this.playerName = playerName;
+
     const code = generateRoomCode();
     await this._join(code);
+
+    this.playerNames.set(this.selfId, playerName);
+
     return code;
   }
 
-  async joinRoom(roomCode) {
+  async joinRoom(roomCode, playerName) {
     this.isHost = false;
+    this.playerName = playerName;
     await this._join(roomCode.toUpperCase());
+
+    this.playerNames.set(this.selfId, playerName);
+    this.send('name', { name: playerName });
   }
 
   send(actionName, data, targetPeerId) {
