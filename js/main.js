@@ -91,6 +91,7 @@ function setupWaitingScreenForHost() {
   document.getElementById('guest-wait-note').classList.add('hidden');
   network.onPeerJoin = renderPlayerList;
   network.onPeerLeave = renderPlayerList;
+  network.onPlayerName = renderPlayerList;
   renderPlayerList();
 }
 
@@ -100,6 +101,7 @@ function setupWaitingScreenForGuest() {
   document.getElementById('guest-wait-note').classList.remove('hidden');
   network.onPeerJoin = renderPlayerList;
   network.onPeerLeave = renderPlayerList;
+  network.onPlayerName = renderPlayerList;
   renderPlayerList();
 }
 
