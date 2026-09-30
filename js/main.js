@@ -371,7 +371,28 @@ requestAnimationFrame(frame);
 
 // ---- ゲームの段階変化に応じて画面を切り替える ---------------------------
 game.onPhaseChange = (phase) => {
-  if (phase === 'playing') {
+  if (phase === 'countdown') {
+    resizeCanvasForConfig(game.config);
+    showScreen('game');
+
+    const countdown = document.getElementById('countdown');
+    countdown.classList.remove('hidden');
+
+    let count = 3;
+    countdown.textContent = count;
+
+    const timer = setInterval(() => {
+      count--;
+
+      if (count > 0) {
+        countdown.textContent = count;
+      } else {
+        clearInterval(timer);
+        countdown.classList.add('hidden');
+      }
+    }, 1000);
+
+  } else if (phase === 'playing') {
     resizeCanvasForConfig(game.config);
     showScreen('game');
   } else if (phase === 'ended') {
