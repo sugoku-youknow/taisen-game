@@ -18,10 +18,19 @@ function showScreen(name) {
 
 // ---- ロビー ----------------------------------------------------------
 const lobbyError = document.getElementById('lobby-error');
+const playerNameInput = document.getElementById('input-player-name');
+let playerName = '';
 document.getElementById('btn-create-room').addEventListener('click', async () => {
   lobbyError.textContent = '';
+
+  playerName = playerNameInput.value.trim();
+  if (!playerName) {
+    lobbyError.textContent = 'プレイヤー名を入力してください。';
+    return;
+  }
+
   try {
-    const code = await network.createRoom();
+    const code = await network.createRoom(playerName);
     document.getElementById('room-code-display').textContent = code;
     setupWaitingScreenForHost();
     showScreen('waiting');
@@ -33,13 +42,18 @@ document.getElementById('btn-create-room').addEventListener('click', async () =>
 
 document.getElementById('btn-join-room').addEventListener('click', async () => {
   lobbyError.textContent = '';
+  playerName = playerNameInput.value.trim();
+  if (!playerName) {
+    lobbyError.textContent = 'プレイヤー名を入力してください。';
+    return;
+  }
   const code = document.getElementById('input-room-code').value.trim();
   if (code.length !== 1 || !/^[0-9]$/.test(code)) {
     lobbyError.textContent = '部屋コードを入力してください。';
     return;
   }
   try {
-    await network.joinRoom(code);
+    await network.joinRoom(code, playerName);
     document.getElementById('room-code-display').textContent = code.toUpperCase();
     setupWaitingScreenForGuest();
     showScreen('waiting');
@@ -57,9 +71,11 @@ function renderPlayerList() {
   list.innerHTML = '';
   ids.forEach((id, i) => {
     const li = document.createElement('li');
-    li.textContent = id === network.selfId
-      ? `あなた${network.isHost ? '(ホスト)' : ''}`
-      : `プレイヤー ${i + 1}`;
+    li.textContent = network.playerNames.get(id) || `プレイヤー ${i + 1}`;
+
+    if (id === network.selfId && network.isHost) {
+      li.textContent += ' (ホスト)';
+    }
     if (id === network.selfId) li.classList.add('me');
     list.appendChild(li);
   });
