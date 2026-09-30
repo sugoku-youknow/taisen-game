@@ -231,15 +231,11 @@ function drawBoard() {
     const x = Math.cos(centerAngle) * distance;
     const y = Math.sin(centerAngle) * distance;
 
-    const textAngle = config.playerCount === 2 ? 0 : centerAngle;
+    const textAngle = 0;
 
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(textAngle);
-
-    if (Math.cos(textAngle) < 0) {
-      ctx.rotate(Math.PI);
-    }
 
     ctx.fillText(name, 0, 0);
     ctx.restore();
