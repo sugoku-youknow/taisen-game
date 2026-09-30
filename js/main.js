@@ -231,7 +231,7 @@ function drawBoard() {
     const x = Math.cos(centerAngle) * distance;
     const y = Math.sin(centerAngle) * distance;
 
-    const textAngle = centerAngle;
+    const textAngle = config.playerCount === 2 ? 0 : centerAngle;
 
     ctx.save();
     ctx.translate(x, y);
