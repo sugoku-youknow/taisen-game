@@ -21,6 +21,7 @@ export class Game {
     this.config = null;
     this.zoneAssignment = null; // Map peerId -> zoneIndex
     this.myZone = null;
+    this.playerNames = new Map();
     this.ballDefs = null;
     this.winnerZone = null;
 
@@ -66,12 +67,16 @@ export class Game {
       playerCount: n,
       zoneAssignment: playerIds, // index = zoneIndex, value = peerId
       ballDefs,
+      playerNames: playerIds.map((id) => ({
+        playerId: id,
+        playerName: this.network.playerNames.get(id) || id,
+      })),
     };
     this.network.send('start', payload);
     this._handleStart(payload); // 自分自身にも同じ手順を適用する
   }
 
-  _handleStart({ playerCount, zoneAssignment, ballDefs }) {
+  _handleStart({ playerCount, zoneAssignment, ballDefs, playerNames }) {
     this.config = getBoardConfig(playerCount);
     this.ballDefs = ballDefs;
     this.zoneAssignment = new Map(zoneAssignment.map((peerId, zone) => [peerId, zone]));
@@ -80,6 +85,11 @@ export class Game {
     this.winnerZone = null;
     this.renderPositions.clear();
     this.targetPositions.clear();
+    this.playerNames.clear();
+
+    playerNames.forEach(({ playerId, playerName }) => {
+      this.playerNames.set(playerId, playerName);
+    });
     ballDefs.forEach((def) => {
       this.renderPositions.set(def.id, { x: def.x, y: def.y });
       this.targetPositions.set(def.id, { x: def.x, y: def.y });
