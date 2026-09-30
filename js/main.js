@@ -128,7 +128,6 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 let dragState = null; // { ballId, originX, originY, pointerId }
 
-// ▼▼▼ 変更箇所 1: 自分の陣地が画面下に来るように盤面を回転 ▼▼▼
 function resizeCanvasForConfig(config) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -172,7 +171,6 @@ function resizeCanvasForConfig(config) {
     config.bounds.height / 2 * dpr
   );
 }
-// ▲▲▲ 変更箇所 1 ここまで ▲▲▲
 
 function drawWallSegment(seg) {
   ctx.save();
@@ -211,6 +209,43 @@ function drawBoard() {
 
   config.outerWalls.forEach(drawWallSegment);
   config.dividerWalls.forEach(drawWallSegment);
+
+  // 各陣地の上にプレイヤー名を表示
+  ctx.save();
+  ctx.fillStyle = '#222';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (let z = 0; z < config.playerCount; z++) {
+    const playerId = [...game.zoneAssignment.entries()]
+      .find(([, zone]) => zone === z)?.[0];
+
+    const name = game.playerNames.get(playerId) || `プレイヤー${z + 1}`;
+
+    const wedgeAngle = (Math.PI * 2) / config.playerCount;
+    const centerAngle = wedgeAngle * z - Math.PI / 2;
+
+    const distance = config.bounds.width * 0.32;
+
+    const x = Math.cos(centerAngle) * distance;
+    const y = Math.sin(centerAngle) * distance;
+
+    const textAngle = centerAngle;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(textAngle);
+
+    if (Math.cos(textAngle) < 0) {
+      ctx.rotate(Math.PI);
+    }
+
+    ctx.fillText(name, 0, 0);
+    ctx.restore();
+  }
+
+  ctx.restore();
 }
 
 function drawBalls() {
@@ -293,7 +328,6 @@ game.onCounts = updateZoneCounts;
 
 // ---- 入力: 自陣の玉をドラッグして引っ張り、離すと発射 ------------------
 
-// ▼▼▼ 変更箇所 2: 画面のタッチ位置を逆回転してゲーム内座標に変換 ▼▼▼
 function canvasPointToBoard(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const scale = game.config.bounds.width / rect.width;
@@ -329,7 +363,6 @@ function canvasPointToBoard(clientX, clientY) {
     y: -sin * screenX + cos * screenY,
   };
 }
-// ▲▲▲ 変更箇所 2 ここまで ▲▲▲
 
 canvas.addEventListener('pointerdown', (e) => {
   if (game.phase !== 'playing') return;
