@@ -36,7 +36,7 @@ document.getElementById('btn-create-room').addEventListener('click', async () =>
     showScreen('waiting');
   } catch (e) {
     console.error(e);
-    lobbyError.textContent = '部屋の作成に失敗しました。通信環境を確認してもう一度お試しください。';
+    lobbyError.textContent = '部屋の作成に失敗しました。通信環境を確認してもう一度お試しのうえ操作してください。';
   }
 });
 
@@ -130,6 +130,18 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 let dragState = null; // { ballId, originX, originY, pointerId }
 
+function getBoardRotation(config) {
+  if (config.playerCount === 2) {
+    return game.myZone === 0 ? Math.PI : 0;
+  }
+
+  const wedgeAngle = (Math.PI * 2) / config.playerCount;
+  const myZoneCenterAngle =
+    wedgeAngle * game.myZone - Math.PI / 2;
+
+  return Math.PI / 2 - myZoneCenterAngle;
+}
+
 function resizeCanvasForConfig(config) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -145,21 +157,7 @@ function resizeCanvasForConfig(config) {
   canvas.style.width = `${config.bounds.width * scale}px`;
   canvas.style.height = `${config.bounds.height * scale}px`;
 
-  // 自分の陣地が画面下に来るように盤面を回転
-  let rotation = 0;
-
-  if (config.playerCount === 2) {
-    // 2人対戦
-    rotation = game.myZone === 0 ? Math.PI : 0;
-  } else {
-    // 3人・4人対戦
-    const wedgeAngle = (Math.PI * 2) / config.playerCount;
-    const myZoneCenterAngle =
-      wedgeAngle * game.myZone - Math.PI / 2;
-
-    // 自分の陣地の中心を「下方向」に向ける
-    rotation = Math.PI / 2 - myZoneCenterAngle;
-  }
+  const rotation = getBoardRotation(config);
 
   const cos = Math.cos(rotation);
   const sin = Math.sin(rotation);
@@ -233,12 +231,11 @@ function drawBoard() {
     const x = Math.cos(centerAngle) * distance;
     const y = Math.sin(centerAngle) * distance;
 
-    const textAngle = 0;
+    const boardRotation = getBoardRotation(config);
 
     ctx.save();
     ctx.translate(x, y);
-    ctx.rotate(textAngle);
-
+    ctx.rotate(-boardRotation);
     ctx.fillText(name, 0, 0);
     ctx.restore();
   }
@@ -450,7 +447,13 @@ game.onPhaseChange = (phase) => {
       msg.textContent = '自分の陣地の玉を先に0個にしました。';
     } else {
       title.textContent = '対戦終了';
-      msg.textContent = `プレイヤー${game.winnerZone + 1}(陣地${game.winnerZone + 1})の勝ちです。`;
+      const winnerId = [...game.zoneAssignment.entries()]
+        .find(([, zone]) => zone === game.winnerZone)?.[0];
+
+      const winnerName =
+        game.playerNames.get(winnerId) || `プレイヤー${game.winnerZone + 1}`;
+
+      msg.textContent = `${winnerName}の勝ちです。`;
     }
     showScreen('ended');
   }
